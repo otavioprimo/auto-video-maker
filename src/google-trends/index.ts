@@ -6,7 +6,7 @@ import Trend from '../models/trend.interface';
 class GoogleTrends {
   constructor () { }
 
-  public getHotTrends(): Promise<Trend[]> {
+  public getDailyTrends(): Promise<Trend[]> {
     let trends: Trend[] = [];
 
     let trendsSettings = {
@@ -33,6 +33,42 @@ class GoogleTrends {
           trends.push(trend);
         }
 
+        resolve(trends);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  public getTrendsByCategory(searchTerm): Promise<Trend[]> {
+    let trends: Trend[] = [];
+    let today = new Date();
+    let thisWeek = new Date();
+
+    thisWeek.setDate(today.getDate() - 7); //Get trends of the past 7 days
+
+    let trendsSettings = {
+      keyword: searchTerm,
+      geo: 'BR',
+      hl: 'pt-BR',
+      startTime: thisWeek,
+      endTime: today
+    }
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        let response: any = await googleTrends.relatedTopics(trendsSettings);
+        let parsedResponse = JSON.parse(response)['default']['rankedList'][0]['rankedKeyword'];
+
+        for (let el of parsedResponse) {; 
+          let trend: Trend = {
+            title: el.topic.title,
+            type: el.topic.type
+          }
+
+          trends.push(trend);
+        }
+        
         resolve(trends);
       } catch (err) {
         reject(err);

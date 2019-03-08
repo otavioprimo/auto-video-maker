@@ -12,6 +12,9 @@ async function start() {
     case 'googleTrends':
       getGoogleTrends();
       break;
+    case 'gooogleTrendsCategory':
+      getGoogleTrendsByCategory();
+      break;
     case 'write':
       writeSearch();
       break;
@@ -21,7 +24,7 @@ async function start() {
 }
 
 async function getGoogleTrends() {
-  let trends: Trend[] = await googleTrends.getHotTrends();
+  let trends: Trend[] = await googleTrends.getDailyTrends();
   let content = await userPromp.askWhichGoogleTrendAndPrefix(trends);
 
   console.log(content);
@@ -32,5 +35,12 @@ async function writeSearch() {
   console.log(content);
 }
 
+async function getGoogleTrendsByCategory() {
+  let searchCategory = await userPromp.askAndReturnCategory();
+  let trends: Trend[] = await googleTrends.getTrendsByCategory(searchCategory);
+  let content = await userPromp.askWhichGoogleTrendAndPrefix(trends);
+
+  console.log(content);
+}
 
 
