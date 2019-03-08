@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/otavioprimo/auto-video-maker#readme",
   "dependencies": {
+    "cli-color": "^1.4.0",
+    "google-trends-api": "^4.9.0",
     "prompts": "^2.0.3"
   },
   "devDependencies": {
