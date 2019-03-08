@@ -23,7 +23,7 @@ class Prompts {
   constructor () { }
 
   /**
- * @description Ask if the user would like to get Daily Google Trands or Write something
+ * @description Ask if the user would like to get Daily Google Trands,Search for a Keyword on Google Trends or Write something
  * @returns Promise<string>
  */
   public async askGoogleTrendsOrWrite(): Promise<string> {
@@ -33,8 +33,12 @@ class Prompts {
       message: clc.green('Would you like:'),
       choices: [
         {
-          title: 'Get top daily google grends',
+          title: 'Get top daily Google Trends',
           value: 'googleTrends'
+        },
+        {
+          title: 'Search by a topic on Google trends',
+          value: 'gooogleTrendsCategory'
         },
         {
           title: 'Write by myself',
@@ -63,8 +67,16 @@ class Prompts {
     let choices: any[] = [];
 
     for (let el of trends) {
+      let title = `${el.title}`;
+
+      if (el.type)
+        title += ` - Type: ${el.type}`;
+
+      if (el.formattedTraffic)
+        title += ` - Date: ${el.formattedTraffic}`;
+
       choices.push({
-        title: `${el.title} - ${el.formattedTraffic}`,
+        title: title,
         value: el.title
       });
     }
@@ -125,6 +137,29 @@ class Prompts {
 
       const response: ContentSearch = await prompts(questions, promptOptions);
       resolve(response);
+    });
+  }
+
+
+  /**
+ * @description Ask to write a category
+ * @returns Promise<string>
+ */
+  public async askAndReturnCategory(): Promise<string> {
+    const question: any = {
+      type: 'text',
+      name: 'category',
+      message: clc.green('Type a topic to search on Google Trends:'),
+      validate: value => typeof value === 'string' ? value.trim() !== '' : false
+    };
+
+    return new Promise(async (resolve, reject) => {
+      const promptOptions = {
+        onCancel: () => reject(new Error(clc.redBright('The user has stopped answer')))
+      }
+
+      const response: any = await prompts(question, promptOptions);
+      resolve(response['category']);
     });
   }
 }
