@@ -37,7 +37,7 @@ async function writeSearch() {
 
 async function getGoogleTrendsByCategory() {
   let searchCategory = await userPromp.askAndReturnCategory();
-  let trends: Trend[] = await googleTrends.getTrendsByCategory(searchCategory);
+  let trends: Trend[] = await googleTrends.getTrendsBySearchTerm(searchCategory);
   let content = await userPromp.askWhichGoogleTrendAndPrefix(trends);
 
   console.log(content);
