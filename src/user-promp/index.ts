@@ -3,6 +3,7 @@ import * as clc from 'cli-color';
 
 import Trend from '../models/trend.interface';
 import ContentSearch from '../models/content-search.interface';
+import GoogleTrendsConstants from '../constants/googleTrends';
 
 const prefixChoices = [
   {
@@ -34,15 +35,15 @@ class Prompts {
       choices: [
         {
           title: 'Get top daily Google Trends',
-          value: 'googleTrends'
+          value: GoogleTrendsConstants.GOOGLE_TRENDS_DAILY
         },
         {
           title: 'Search by a topic on Google trends',
-          value: 'gooogleTrendsCategory'
+          value: GoogleTrendsConstants.GOOGLE_TRENDS_CATEGORY
         },
         {
           title: 'Write by myself',
-          value: 'write'
+          value: GoogleTrendsConstants.WRITE
         },
       ],
       validate: value => typeof value === 'string' ? value.trim() !== '' : false
@@ -69,11 +70,11 @@ class Prompts {
     for (let el of trends) {
       let title = `${el.title}`;
 
-      if (el.type)
-        title += ` - Type: ${el.type}`;
-
       if (el.formattedTraffic)
-        title += ` - Date: ${el.formattedTraffic}`;
+        title += ` ${el.formattedTraffic}`;
+
+      if (el.type)
+        title += ` - ${el.type}`;
 
       choices.push({
         title: title,
