@@ -4,13 +4,23 @@ import * as SentenceBoundaryDetection from 'sbd';
 import ora from 'ora';
 import ContentSearch from "../models/content-search.interface";
 
-const algorithmiaCredentials = require('../credentials/algorithmia.json');
-const algorithmiaApiKey = algorithmiaCredentials.apiKey;
+const algorithmiaApiKey = require('../credentials/algorithmia.json').apiKey;
+const watsonApikey = require("../credentials/watson-nlu.json").apikey;
+
+const NaturalLanguageUnderstandingV1 = require("watson-developer-cloud/natural-language-understanding/v1");
+
+const nlu = new NaturalLanguageUnderstandingV1({
+  iam_apikey: watsonApikey,
+  version: '2018-04-05',
+  url: 'https://gateway.watsonplatform.net/natural-language-understanding/api'
+});
 
 async function robot(content: ContentSearch) {
   await fetchContentFromWikipedia(content)
   await sanitizeContent(content)
   await breakContentIntoSentences(content)
+  await limitMaximumSentences(content);
+  await fetchkeywordsOfAllSentences(content);
 
   async function fetchContentFromWikipedia(content: ContentSearch) {
     const spinner = ora({ color: 'cyan', text: `Fetchind wikipedia content about ${content.searchTerm}`, }).start();
@@ -62,6 +72,39 @@ async function robot(content: ContentSearch) {
       })
     })
   }
+
+  function limitMaximumSentences(content: ContentSearch) {
+    content.sentences = content.sentences.slice(0, 7);
+  }
+
+  async function fetchkeywordsOfAllSentences(content: ContentSearch) {
+    const spinner = ora({ color: 'cyan', text: `Fetchind keywords from watson` }).start();
+    for (const sentence of content.sentences) {
+      sentence.keywords = await fetchWatsonAdnReturnKeyWords(sentence.text);
+    }
+    spinner.succeed();
+  }
+
+  async function fetchWatsonAdnReturnKeyWords(sentence: string): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      nlu.analyze({
+        text: sentence,
+        features: {
+          keywords: {}
+        }
+      }, (error, response) => {
+        if (error)
+          throw error;
+
+        const keywords = response.keywords.map((keyword) => {
+          return keyword.text;
+        });
+
+        resolve(keywords);
+      });
+    });
+  }
+
 }
 
 export default robot;

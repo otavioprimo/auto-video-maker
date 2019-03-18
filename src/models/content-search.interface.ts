@@ -4,6 +4,7 @@ export default interface ContentSearch {
   sourceContentOriginal?: string;
   sourceContentSanitized?: string;
   sentences?: Sentence[];
+  maximumSentences?: number;
 }
 
 
