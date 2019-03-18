@@ -33,7 +33,7 @@ async function start() {
     }
 
     await robots.text(content);
-    console.log(content);
+    console.log(JSON.stringify(content, null, 4));
   } catch (error) {
     console.log(clc.red(error));
   }
