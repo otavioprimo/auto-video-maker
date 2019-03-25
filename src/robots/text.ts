@@ -3,6 +3,7 @@ import * as SentenceBoundaryDetection from 'sbd';
 
 import ora from 'ora';
 import ContentSearch from "../models/content-search.interface";
+import state from './state';
 
 const algorithmiaApiKey = require('../credentials/algorithmia.json').apiKey;
 const watsonApikey = require("../credentials/watson-nlu.json").apikey;
@@ -15,12 +16,16 @@ const nlu = new NaturalLanguageUnderstandingV1({
   url: 'https://gateway.watsonplatform.net/natural-language-understanding/api'
 });
 
-async function robot(content: ContentSearch) {
+async function robot() {
+  const content: ContentSearch = state.load();
+
   await fetchContentFromWikipedia(content)
   await sanitizeContent(content)
   await breakContentIntoSentences(content)
   await limitMaximumSentences(content);
   await fetchkeywordsOfAllSentences(content);
+
+  state.save(content);
 
   async function fetchContentFromWikipedia(content: ContentSearch) {
     const spinner = ora({ color: 'cyan', text: `Fetchind wikipedia content about ${content.searchTerm}`, }).start();
