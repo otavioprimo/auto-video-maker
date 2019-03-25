@@ -1,3 +1,4 @@
 node_modules/
 dist/
 /src/credentials/*.json
+content.json
